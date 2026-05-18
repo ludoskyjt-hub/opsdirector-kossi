@@ -1,0 +1,48 @@
+import { Router, type IRouter } from "express";
+import healthRouter from "./health";
+import authRouter from "./auth";
+import webauthnRouter from "./webauthn";
+import accountsRouter from "./accounts";
+import expensesRouter from "./expenses";
+import employeesRouter from "./employees";
+import aiRouter from "./ai";
+import dgiRouter from "./dgi";
+import reportsRouter from "./reports";
+import momoRouter from "./momo";
+import pushRouter from "./push";
+import teamRouter from "./team";
+import budgetsRouter from "./budgets";
+import complianceRouter from "./compliance";
+import categoriesRouter from "./categories";
+import employeeLimitsRouter from "./employee-limits";
+import auditRouter from "./audit";
+import notificationsRouter from "./notifications";
+import recurringRouter from "./recurring";
+import importRouter from "./import";
+import boutikoRouter from "./boutiko";
+
+const router: IRouter = Router();
+
+router.use(healthRouter);
+router.use(authRouter);
+router.use(webauthnRouter);
+router.use(accountsRouter);
+router.use(expensesRouter);
+router.use(employeesRouter);
+router.use(aiRouter);
+router.use(dgiRouter);
+router.use(reportsRouter);
+router.use(momoRouter);
+router.use(pushRouter);
+router.use(teamRouter);
+router.use(budgetsRouter);
+router.use(complianceRouter);
+router.use(categoriesRouter);
+router.use(employeeLimitsRouter);
+router.use(auditRouter);
+router.use(notificationsRouter);
+router.use(recurringRouter);
+router.use(importRouter);
+router.use(boutikoRouter);
+
+export default router;

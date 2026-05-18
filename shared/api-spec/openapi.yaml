@@ -1,0 +1,2162 @@
+openapi: 3.1.0
+info:
+  # Do not change the title, if the title changes, the import paths will be broken
+  title: Api
+  version: 0.1.0
+  description: BéninExpense AI - Plateforme de gestion des dépenses et conformité fiscale
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: auth
+    description: Authentication
+  - name: boutiko
+    description: Boutiko — gestion de boutique
+  - name: expenses
+    description: Expense management
+  - name: accounts
+    description: Account & balance management
+  - name: reports
+    description: Reports and summaries
+  - name: employees
+    description: Employee management
+  - name: dgi
+    description: DGI / e-MECeF fiscal compliance
+  - name: ai
+    description: AI assistant (NLP, OCR, voice)
+  - name: momo
+    description: Mobile Money real-time integration
+  - name: budgets
+    description: Budget management
+  - name: team
+    description: Team / user management
+  - name: reports
+    description: Reports and analytics
+  - name: recurring
+    description: Recurring expenses management
+
+paths:
+  # ─── Boutiko ──────────────────────────────────────────────────────────────
+  /boutiko/auth/register:
+    post:
+      operationId: boutikoRegister
+      tags: [boutiko]
+      summary: Register a Boutiko user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BoutikoRegisterInput"
+      responses:
+        "201":
+          description: Registered
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BoutikoAuthResponse"
+        "400":
+          description: Validation error
+
+  /boutiko/auth/login:
+    post:
+      operationId: boutikoLogin
+      tags: [boutiko]
+      summary: Login to Boutiko
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BoutikoLoginInput"
+      responses:
+        "200":
+          description: Authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BoutikoAuthResponse"
+        "401":
+          description: Invalid credentials
+
+  /boutiko/auth/me:
+    get:
+      operationId: boutikoGetMe
+      tags: [boutiko]
+      summary: Get current Boutiko user
+      responses:
+        "200":
+          description: Current user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BoutikoUser"
+        "401":
+          description: Unauthorized
+
+  /boutiko/shop:
+    get:
+      operationId: boutikoGetShop
+      tags: [boutiko]
+      summary: Get the user's boutique
+      responses:
+        "200":
+          description: Boutique
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BoutikoBoutique"
+        "404":
+          description: Not found
+    post:
+      operationId: boutikoCreateShop
+      tags: [boutiko]
+      summary: Create user's boutique
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BoutikoShopInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BoutikoBoutique"
+    patch:
+      operationId: boutikoUpdateShop
+      tags: [boutiko]
+      summary: Update user's boutique
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BoutikoShopInput"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BoutikoBoutique"
+
+  /boutiko/dashboard:
+    get:
+      operationId: boutikoGetDashboard
+      tags: [boutiko]
+      summary: Get Boutiko dashboard summary
+      responses:
+        "200":
+          description: Dashboard summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BoutikoDashboard"
+
+  /boutiko/products:
+    get:
+      operationId: boutikoGetProducts
+      tags: [boutiko]
+      summary: List products
+      parameters:
+        - name: category
+          in: query
+          schema:
+            type: string
+        - name: lowStock
+          in: query
+          schema:
+            type: boolean
+        - name: q
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Products
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/BoutikoProduct"
+    post:
+      operationId: boutikoCreateProduct
+      tags: [boutiko]
+      summary: Create a product
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BoutikoProductInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BoutikoProduct"
+
+  /boutiko/products/{id}:
+    get:
+      operationId: boutikoGetProduct
+      tags: [boutiko]
+      summary: Get product by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Product
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BoutikoProduct"
+    patch:
+      operationId: boutikoUpdateProduct
+      tags: [boutiko]
+      summary: Update a product
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BoutikoProductInput"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BoutikoProduct"
+    delete:
+      operationId: boutikoDeleteProduct
+      tags: [boutiko]
+      summary: Delete a product
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /boutiko/clients:
+    get:
+      operationId: boutikoGetClients
+      tags: [boutiko]
+      summary: List clients
+      parameters:
+        - name: q
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Clients
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/BoutikoClient"
+    post:
+      operationId: boutikoCreateClient
+      tags: [boutiko]
+      summary: Create a client
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BoutikoClientInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BoutikoClient"
+
+  /boutiko/clients/{id}:
+    patch:
+      operationId: boutikoUpdateClient
+      tags: [boutiko]
+      summary: Update a client
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BoutikoClientInput"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BoutikoClient"
+    delete:
+      operationId: boutikoDeleteClient
+      tags: [boutiko]
+      summary: Delete a client
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /boutiko/sales:
+    get:
+      operationId: boutikoGetSales
+      tags: [boutiko]
+      summary: List sales
+      parameters:
+        - name: from
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: to
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: clientId
+          in: query
+          schema:
+            type: integer
+        - name: paymentMethod
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Sales
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/BoutikoSale"
+    post:
+      operationId: boutikoCreateSale
+      tags: [boutiko]
+      summary: Create a sale
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BoutikoSaleInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BoutikoSale"
+
+  /boutiko/sales/{id}:
+    get:
+      operationId: boutikoGetSale
+      tags: [boutiko]
+      summary: Get sale by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Sale
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BoutikoSale"
+
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  # Auth
+  /auth/register:
+    post:
+      operationId: register
+      tags: [auth]
+      summary: Register a new company
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterInput"
+      responses:
+        "201":
+          description: Registered
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "400":
+          description: Validation error
+
+  /auth/login:
+    post:
+      operationId: login
+      tags: [auth]
+      summary: Login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginInput"
+      responses:
+        "200":
+          description: Authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "401":
+          description: Invalid credentials
+
+  /auth/logout:
+    post:
+      operationId: logout
+      tags: [auth]
+      summary: Logout
+      responses:
+        "200":
+          description: Logged out
+
+  /auth/me:
+    get:
+      operationId: getMe
+      tags: [auth]
+      summary: Get current user
+      responses:
+        "200":
+          description: Current user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          description: Unauthorized
+
+  /auth/profile:
+    patch:
+      operationId: updateProfile
+      tags: [auth]
+      summary: Update current user profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProfileUpdate"
+      responses:
+        "200":
+          description: Updated user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "400":
+          description: Validation error
+        "401":
+          description: Unauthorized
+
+  # Accounts
+  /accounts:
+    get:
+      operationId: getAccounts
+      tags: [accounts]
+      summary: List accounts
+      responses:
+        "200":
+          description: List of accounts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Account"
+    post:
+      operationId: createAccount
+      tags: [accounts]
+      summary: Create an account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AccountInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Account"
+
+  /accounts/{id}:
+    get:
+      operationId: getAccount
+      tags: [accounts]
+      summary: Get account by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Account
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Account"
+        "404":
+          description: Not found
+
+    patch:
+      operationId: updateAccount
+      tags: [accounts]
+      summary: Update account balance
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AccountUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Account"
+
+  # Expenses
+  /expenses:
+    get:
+      operationId: getExpenses
+      tags: [expenses]
+      summary: List expenses
+      parameters:
+        - name: accountId
+          in: query
+          schema:
+            type: integer
+        - name: employeeId
+          in: query
+          schema:
+            type: integer
+        - name: date
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: category
+          in: query
+          schema:
+            type: string
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, validated, rejected, synced]
+      responses:
+        "200":
+          description: List of expenses
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Expense"
+
+    post:
+      operationId: createExpense
+      tags: [expenses]
+      summary: Create an expense
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ExpenseInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Expense"
+
+  /expenses/{id}:
+    get:
+      operationId: getExpense
+      tags: [expenses]
+      summary: Get expense by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Expense
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Expense"
+        "404":
+          description: Not found
+
+    patch:
+      operationId: updateExpense
+      tags: [expenses]
+      summary: Update an expense
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ExpenseUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Expense"
+
+    delete:
+      operationId: deleteExpense
+      tags: [expenses]
+      summary: Delete an expense
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /expenses/export:
+    get:
+      operationId: exportExpenses
+      tags: [expenses]
+      summary: Export expenses as CSV
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, validated, rejected, synced]
+        - name: category
+          in: query
+          schema:
+            type: string
+        - name: from
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: to
+          in: query
+          schema:
+            type: string
+            format: date
+      responses:
+        "200":
+          description: CSV file
+          content:
+            text/csv:
+              schema:
+                type: string
+
+  /expenses/{id}/validate:
+    post:
+      operationId: validateExpense
+      tags: [expenses]
+      summary: Validate an expense (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Validated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Expense"
+
+  /expenses/{id}/reject:
+    post:
+      operationId: rejectExpense
+      tags: [expenses]
+      summary: Reject an expense (admin/accountant)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reason:
+                  type: string
+      responses:
+        "200":
+          description: Rejected
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Expense"
+
+  # AI Assistant
+  /ai/parse-text:
+    post:
+      operationId: parseExpenseText
+      tags: [ai]
+      summary: Parse natural language text to extract expense data
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ParseTextInput"
+      responses:
+        "200":
+          description: Parsed expense data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ParsedExpense"
+
+  /ai/parse-receipt:
+    post:
+      operationId: parseReceipt
+      tags: [ai]
+      summary: OCR a receipt image and extract expense data
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ParseReceiptInput"
+      responses:
+        "200":
+          description: Extracted expense data from receipt
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ParsedExpense"
+
+  # DGI / e-MECeF
+  /dgi/normalize/{expenseId}:
+    post:
+      operationId: normalizeExpense
+      tags: [dgi]
+      summary: Send expense to DGI for fiscal normalization (simulated)
+      parameters:
+        - name: expenseId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Normalized with QR code
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DgiResult"
+
+  /dgi/status/{expenseId}:
+    get:
+      operationId: getDgiStatus
+      tags: [dgi]
+      summary: Get DGI normalization status for an expense
+      parameters:
+        - name: expenseId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: DGI status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DgiResult"
+
+  # Budgets
+  /budgets:
+    get:
+      operationId: getBudgets
+      tags: [budgets]
+      summary: List budgets with current spending
+      responses:
+        "200":
+          description: Budgets with spending data
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/BudgetWithSpending"
+    post:
+      operationId: createBudget
+      tags: [budgets]
+      summary: Create a budget
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BudgetInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BudgetWithSpending"
+
+  /budgets/{id}:
+    patch:
+      operationId: updateBudget
+      tags: [budgets]
+      summary: Update a budget
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                amount:
+                  type: number
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BudgetWithSpending"
+    delete:
+      operationId: deleteBudget
+      tags: [budgets]
+      summary: Delete a budget
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  # Employees
+  /employees:
+    get:
+      operationId: getEmployees
+      tags: [employees]
+      summary: List employees
+      responses:
+        "200":
+          description: List of employees
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Employee"
+
+    post:
+      operationId: createEmployee
+      tags: [employees]
+      summary: Create an employee
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EmployeeInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Employee"
+
+  /employees/{id}/reimburse:
+    post:
+      operationId: reimburseEmployee
+      tags: [employees]
+      summary: Reimburse employee via Mobile Money
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReimbursementInput"
+      responses:
+        "200":
+          description: Reimbursement initiated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReimbursementResult"
+
+  # Reports
+  /reports/daily:
+    get:
+      operationId: getDailyReport
+      tags: [reports]
+      summary: Get daily expense report
+      parameters:
+        - name: date
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: accountId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Daily report
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DailyReport"
+
+  /reports/dashboard:
+    get:
+      operationId: getDashboardSummary
+      tags: [reports]
+      summary: Get dashboard summary (balances, today totals, recent expenses)
+      responses:
+        "200":
+          description: Dashboard summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardSummary"
+
+  # Mobile Money
+  /momo/transactions:
+    get:
+      operationId: getMomoTransactions
+      tags: [momo]
+      summary: List MoMo transactions for the authenticated user
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: List of MoMo transactions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/MomoTransaction"
+
+  /momo/simulate:
+    post:
+      operationId: simulateMomoTransaction
+      tags: [momo]
+      summary: Simulate an incoming MoMo transaction (demo)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MomoSimulateInput"
+      responses:
+        "201":
+          description: Simulated transaction created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MomoSimulateResult"
+
+  /reports/monthly-trend:
+    get:
+      operationId: getMonthlyTrend
+      tags: [reports]
+      summary: Get monthly expense trend for the last N months
+      parameters:
+        - name: months
+          in: query
+          schema:
+            type: integer
+            default: 12
+      responses:
+        "200":
+          description: Monthly trend data
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/MonthlyTrendItem"
+
+  /reports/categories:
+    get:
+      operationId: getCategoryBreakdown
+      tags: [reports]
+      summary: Get expense breakdown by category
+      parameters:
+        - name: from
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: to
+          in: query
+          schema:
+            type: string
+            format: date
+      responses:
+        "200":
+          description: Category breakdown
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CategoryStat"
+
+  # Recurring expenses
+  /recurring:
+    get:
+      operationId: getRecurring
+      tags: [recurring]
+      summary: List recurring expenses
+      responses:
+        "200":
+          description: List of recurring expenses
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/RecurringExpense"
+    post:
+      operationId: createRecurring
+      tags: [recurring]
+      summary: Create a recurring expense
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RecurringExpenseInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RecurringExpense"
+
+  /recurring/generate:
+    post:
+      operationId: generateRecurring
+      tags: [recurring]
+      summary: Generate pending expenses from due recurring rules
+      responses:
+        "200":
+          description: Generated expenses count
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [generated]
+                properties:
+                  generated:
+                    type: integer
+                  expenses:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Expense"
+
+  /recurring/{id}:
+    get:
+      operationId: getRecurringById
+      tags: [recurring]
+      summary: Get recurring expense by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Recurring expense
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RecurringExpense"
+        "404":
+          description: Not found
+    put:
+      operationId: updateRecurring
+      tags: [recurring]
+      summary: Update a recurring expense
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RecurringExpenseInput"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RecurringExpense"
+    delete:
+      operationId: deleteRecurring
+      tags: [recurring]
+      summary: Delete a recurring expense
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  # DGI settings
+  /dgi/settings:
+    get:
+      operationId: getDgiSettings
+      tags: [dgi]
+      summary: Get DGI e-MECeF connection settings
+      responses:
+        "200":
+          description: DGI settings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DgiSettings"
+    put:
+      operationId: updateDgiSettings
+      tags: [dgi]
+      summary: Update DGI e-MECeF credentials
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DgiSettingsInput"
+      responses:
+        "200":
+          description: Updated DGI settings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DgiSettings"
+
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+
+    # Auth schemas
+    RegisterInput:
+      type: object
+      required: [companyName, ifu, email, password, phone]
+      properties:
+        companyName:
+          type: string
+          minLength: 2
+        ifu:
+          type: string
+          description: Identifiant Fiscal Unique
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 6
+        phone:
+          type: string
+        country:
+          type: string
+          description: ISO 3166-1 alpha-2 country code
+
+    LoginInput:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+
+    ProfileUpdate:
+      type: object
+      properties:
+        companyName:
+          type: string
+          minLength: 2
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+        currentPassword:
+          type: string
+          description: Required when changing password
+        newPassword:
+          type: string
+          minLength: 6
+
+    AuthResponse:
+      type: object
+      required: [user, token]
+      properties:
+        user:
+          $ref: "#/components/schemas/User"
+        token:
+          type: string
+
+    User:
+      type: object
+      required: [id, email, companyName, ifu, role, country]
+      properties:
+        id:
+          type: integer
+        email:
+          type: string
+        companyName:
+          type: string
+        ifu:
+          type: string
+        role:
+          type: string
+          enum: [admin, accountant, employee]
+        phone:
+          type: ["string", "null"]
+        country:
+          type: string
+          description: ISO 3166-1 alpha-2 country code (BJ, TG, CI, SN, ML, BF, NE, GN)
+        defaultCurrency:
+          type: string
+          description: Default currency code (XOF, XAF, GHS, NGN…)
+
+    # Account schemas
+    Account:
+      type: object
+      required: [id, name, type, balance, currency]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        type:
+          type: string
+          enum: [cash, bank, mobile_money]
+        balance:
+          type: number
+        currency:
+          type: string
+          default: FCFA
+        createdAt:
+          type: string
+          format: date-time
+
+    AccountInput:
+      type: object
+      required: [name, type, balance]
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+          enum: [cash, bank, mobile_money]
+        balance:
+          type: number
+        currency:
+          type: string
+          default: XOF
+          description: ISO 4217 currency code (XOF, XAF, GHS, NGN, etc.)
+
+    AccountUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        balance:
+          type: number
+        currency:
+          type: string
+          description: ISO 4217 currency code
+
+    # Expense schemas
+    Expense:
+      type: object
+      required: [id, description, amount, category, status, createdAt]
+      properties:
+        id:
+          type: integer
+        description:
+          type: string
+        amount:
+          type: number
+        category:
+          type: string
+        status:
+          type: string
+          enum: [pending, validated, rejected, synced]
+        accountId:
+          type: ["integer", "null"]
+        employeeId:
+          type: ["integer", "null"]
+        employeeName:
+          type: ["string", "null"]
+        receiptUrl:
+          type: ["string", "null"]
+        dgiQrCode:
+          type: ["string", "null"]
+        dgiReference:
+          type: ["string", "null"]
+        dgiStatus:
+          type: string
+          enum: [not_submitted, pending, normalized, failed]
+        notes:
+          type: ["string", "null"]
+        submittedBy:
+          type: ["integer", "null"]
+          description: ID of the user who submitted the expense
+        rejectionReason:
+          type: ["string", "null"]
+          description: Reason for rejection if status is rejected
+        riskLevel:
+          type: string
+          enum: [none, low, medium, high]
+          default: none
+        flagReason:
+          type: ["string", "null"]
+          description: Reason for flagging the expense as suspicious
+        createdAt:
+          type: string
+          format: date-time
+
+    ExpenseInput:
+      type: object
+      required: [description, amount, category]
+      properties:
+        description:
+          type: string
+        amount:
+          type: number
+        category:
+          type: string
+        accountId:
+          type: integer
+        employeeId:
+          type: integer
+        notes:
+          type: string
+        receiptUrl:
+          type: string
+
+    ExpenseUpdate:
+      type: object
+      properties:
+        description:
+          type: string
+        amount:
+          type: number
+        category:
+          type: string
+        status:
+          type: string
+          enum: [pending, validated, rejected]
+        notes:
+          type: string
+
+    # Budget schemas
+    BudgetInput:
+      type: object
+      required: [category, amount, period, year]
+      properties:
+        category:
+          type: string
+        amount:
+          type: number
+        period:
+          type: string
+          enum: [monthly, yearly]
+        year:
+          type: integer
+        month:
+          type: integer
+
+    BudgetWithSpending:
+      type: object
+      required: [id, category, amount, period, year, spent, remaining, percentage, overBudget]
+      properties:
+        id:
+          type: integer
+        category:
+          type: string
+        amount:
+          type: number
+        period:
+          type: string
+          enum: [monthly, yearly]
+        year:
+          type: integer
+        month:
+          type: ["integer", "null"]
+        spent:
+          type: number
+        remaining:
+          type: number
+        percentage:
+          type: integer
+        overBudget:
+          type: boolean
+        isCurrent:
+          type: boolean
+
+    # AI schemas
+    ParseTextInput:
+      type: object
+      required: [text]
+      properties:
+        text:
+          type: string
+          description: Natural language text describing the expense
+
+    ParseReceiptInput:
+      type: object
+      required: [imageBase64]
+      properties:
+        imageBase64:
+          type: string
+          description: Base64-encoded image of the receipt
+
+    ParsedExpense:
+      type: object
+      required: [description, amount, category, confidence]
+      properties:
+        description:
+          type: string
+        amount:
+          type: number
+        category:
+          type: string
+        confidence:
+          type: number
+          description: Confidence score 0-1
+        rawText:
+          type: ["string", "null"]
+
+    # DGI schemas
+    DgiResult:
+      type: object
+      required: [expenseId, status]
+      properties:
+        expenseId:
+          type: integer
+        status:
+          type: string
+          enum: [pending, normalized, failed]
+        qrCode:
+          type: ["string", "null"]
+        reference:
+          type: ["string", "null"]
+        normalizedAt:
+          type: ["string", "null"]
+          format: date-time
+
+    # Employee schemas
+    Employee:
+      type: object
+      required: [id, name, email, phone, role]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        role:
+          type: string
+          enum: [admin, employee]
+        mobileMoneyProvider:
+          type: ["string", "null"]
+          enum: ["mtn_momo", "moov_money", null]
+        mobileMoneyNumber:
+          type: ["string", "null"]
+
+    EmployeeInput:
+      type: object
+      required: [name, email, phone]
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        mobileMoneyProvider:
+          type: string
+          enum: [mtn_momo, moov_money]
+        mobileMoneyNumber:
+          type: string
+
+    ReimbursementInput:
+      type: object
+      required: [amount, expenseIds]
+      properties:
+        amount:
+          type: number
+        expenseIds:
+          type: array
+          items:
+            type: integer
+        provider:
+          type: string
+          enum: [mtn_momo, moov_money]
+
+    ReimbursementResult:
+      type: object
+      required: [status, transactionId]
+      properties:
+        status:
+          type: string
+          enum: [initiated, success, failed]
+        transactionId:
+          type: ["string", "null"]
+        message:
+          type: string
+
+    # Report schemas
+    DailyReport:
+      type: object
+      required: [date, totalExpenses, expenseCount, remainingBalance, expenses]
+      properties:
+        date:
+          type: string
+          format: date
+        totalExpenses:
+          type: number
+        expenseCount:
+          type: integer
+        remainingBalance:
+          type: number
+        expenses:
+          type: array
+          items:
+            $ref: "#/components/schemas/Expense"
+
+    DashboardSummary:
+      type: object
+      required: [totalBalance, todayExpenses, todayCount, pendingCount, approvalPendingCount, recentExpenses, accounts]
+      properties:
+        totalBalance:
+          type: number
+        todayExpenses:
+          type: number
+        todayCount:
+          type: integer
+        pendingCount:
+          type: integer
+        approvalPendingCount:
+          type: integer
+        recentExpenses:
+          type: array
+          items:
+            $ref: "#/components/schemas/Expense"
+        accounts:
+          type: array
+          items:
+            $ref: "#/components/schemas/Account"
+
+    CategoryStat:
+      type: object
+      required: [category, total, count]
+      properties:
+        category:
+          type: string
+        total:
+          type: number
+        count:
+          type: integer
+
+    MonthlyTrendItem:
+      type: object
+      required: [month, total, count]
+      properties:
+        month:
+          type: string
+          description: "YYYY-MM format"
+        total:
+          type: number
+        count:
+          type: integer
+        byCategory:
+          type: object
+          additionalProperties:
+            type: number
+
+    # Mobile Money schemas
+    MomoTransaction:
+      type: object
+      required: [id, userId, provider, providerLabel, phone, amount, type, description, reference, status, createdAt]
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        provider:
+          type: string
+          enum: [mtn_momo, moov_money, orange_money]
+        providerLabel:
+          type: string
+        phone:
+          type: string
+        amount:
+          type: number
+        type:
+          type: string
+          enum: [debit, credit]
+        description:
+          type: string
+        reference:
+          type: string
+        status:
+          type: string
+          enum: [pending, processed, ignored]
+        expenseId:
+          type: ["integer", "null"]
+        createdAt:
+          type: string
+          format: date-time
+
+    MomoSimulateInput:
+      type: object
+      required: [amount, description]
+      properties:
+        provider:
+          type: string
+          enum: [mtn_momo, moov_money, orange_money]
+          default: mtn_momo
+        phone:
+          type: string
+          default: "229 97000000"
+        amount:
+          type: number
+        type:
+          type: string
+          enum: [debit, credit]
+          default: debit
+        description:
+          type: string
+
+    MomoSimulateResult:
+      type: object
+      required: [status, transactionId, reference, providerLabel]
+      properties:
+        status:
+          type: string
+        transactionId:
+          type: integer
+        expenseId:
+          type: ["integer", "null"]
+        reference:
+          type: string
+        providerLabel:
+          type: string
+
+    # Recurring expense schemas
+    RecurringExpense:
+      type: object
+      required: [id, description, amount, category, frequency, nextDueDate, active, createdAt]
+      properties:
+        id:
+          type: integer
+        description:
+          type: string
+        amount:
+          type: number
+        category:
+          type: string
+        frequency:
+          type: string
+          enum: [daily, weekly, monthly, yearly]
+        nextDueDate:
+          type: string
+          format: date-time
+        lastGeneratedAt:
+          type: ["string", "null"]
+          format: date-time
+        active:
+          type: boolean
+        accountId:
+          type: ["integer", "null"]
+        notes:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+
+    RecurringExpenseInput:
+      type: object
+      required: [description, amount, category, frequency, nextDueDate]
+      properties:
+        description:
+          type: string
+        amount:
+          type: number
+        category:
+          type: string
+        frequency:
+          type: string
+          enum: [daily, weekly, monthly, yearly]
+        nextDueDate:
+          type: string
+          format: date-time
+        accountId:
+          type: integer
+        active:
+          type: boolean
+          default: true
+        notes:
+          type: string
+
+    # DGI settings schemas
+    DgiSettings:
+      type: object
+      required: [configured, ifu, mode]
+      properties:
+        configured:
+          type: boolean
+          description: Whether real DGI credentials are set
+        ifu:
+          type: string
+          description: Company IFU
+        mode:
+          type: string
+          enum: [real, simulation]
+          description: real if credentials configured, simulation otherwise
+        defaultCurrency:
+          type: string
+          description: Default currency code (XOF, XAF, GHS, NGN…)
+
+    DgiSettingsInput:
+      type: object
+      properties:
+        dgiToken:
+          type: string
+          description: DGI e-MECeF API token (leave empty to clear)
+        dgiSecret:
+          type: string
+          description: DGI e-MECeF API secret (leave empty to clear)
+        defaultCurrency:
+          type: string
+          description: ISO 4217 currency code (XOF, XAF, GHS, NGN…)
+
+    # ─── Boutiko schemas ───────────────────────────────────────────────────────
+    BoutikoAuthResponse:
+      type: object
+      required: [token, user]
+      properties:
+        token:
+          type: string
+        user:
+          $ref: "#/components/schemas/BoutikoUser"
+
+    BoutikoUser:
+      type: object
+      required: [id, email, name, createdAt]
+      properties:
+        id:
+          type: integer
+        email:
+          type: string
+        name:
+          type: string
+        phone:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+
+    BoutikoRegisterInput:
+      type: object
+      required: [email, password, name]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 6
+        name:
+          type: string
+
+    BoutikoLoginInput:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+
+    BoutikoBoutique:
+      type: object
+      required: [id, userId, name, currency, createdAt]
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        name:
+          type: string
+        description:
+          type: ["string", "null"]
+        currency:
+          type: string
+          default: XOF
+        country:
+          type: ["string", "null"]
+        logoUrl:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+
+    BoutikoShopInput:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        currency:
+          type: string
+        country:
+          type: string
+        logoUrl:
+          type: string
+
+    BoutikoProduct:
+      type: object
+      required: [id, boutiqueId, name, price, stock, createdAt]
+      properties:
+        id:
+          type: integer
+        boutiqueId:
+          type: integer
+        name:
+          type: string
+        description:
+          type: ["string", "null"]
+        price:
+          type: number
+        costPrice:
+          type: ["number", "null"]
+        stock:
+          type: integer
+        unit:
+          type: ["string", "null"]
+        category:
+          type: ["string", "null"]
+        imageUrl:
+          type: ["string", "null"]
+        barcode:
+          type: ["string", "null"]
+        active:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+
+    BoutikoProductInput:
+      type: object
+      required: [name, price, stock]
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        price:
+          type: number
+        costPrice:
+          type: number
+        stock:
+          type: integer
+        unit:
+          type: string
+        category:
+          type: string
+        imageUrl:
+          type: string
+        barcode:
+          type: string
+        active:
+          type: boolean
+
+    BoutikoClient:
+      type: object
+      required: [id, boutiqueId, name, createdAt]
+      properties:
+        id:
+          type: integer
+        boutiqueId:
+          type: integer
+        name:
+          type: string
+        phone:
+          type: ["string", "null"]
+        email:
+          type: ["string", "null"]
+        address:
+          type: ["string", "null"]
+        totalPurchases:
+          type: number
+        lastPurchaseAt:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+
+    BoutikoClientInput:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+        phone:
+          type: string
+        email:
+          type: string
+        address:
+          type: string
+
+    BoutikoSale:
+      type: object
+      required: [id, boutiqueId, totalAmount, paymentMethod, status, createdAt]
+      properties:
+        id:
+          type: integer
+        boutiqueId:
+          type: integer
+        clientId:
+          type: ["integer", "null"]
+        clientName:
+          type: ["string", "null"]
+        totalAmount:
+          type: number
+        paymentMethod:
+          type: string
+          enum: [cash, mobile_money, card, credit]
+        status:
+          type: string
+          enum: [completed, pending, cancelled]
+        notes:
+          type: ["string", "null"]
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/BoutikoSaleItem"
+        createdAt:
+          type: string
+          format: date-time
+
+    BoutikoSaleItem:
+      type: object
+      required: [id, saleId, productId, productName, quantity, unitPrice, totalPrice]
+      properties:
+        id:
+          type: integer
+        saleId:
+          type: integer
+        productId:
+          type: integer
+        productName:
+          type: string
+        quantity:
+          type: integer
+        unitPrice:
+          type: number
+        totalPrice:
+          type: number
+
+    BoutikoSaleInput:
+      type: object
+      required: [totalAmount, paymentMethod, items]
+      properties:
+        clientId:
+          type: integer
+        clientName:
+          type: string
+        totalAmount:
+          type: number
+        paymentMethod:
+          type: string
+          enum: [cash, mobile_money, card, credit]
+        notes:
+          type: string
+        items:
+          type: array
+          items:
+            type: object
+            required: [productId, quantity, unitPrice]
+            properties:
+              productId:
+                type: integer
+              quantity:
+                type: integer
+              unitPrice:
+                type: number
+
+    BoutikoDashboard:
+      type: object
+      required: [totalRevenue, totalSales, totalProducts, totalClients, todayRevenue, todaySales, lowStockCount, recentSales, topProducts]
+      properties:
+        totalRevenue:
+          type: number
+        totalSales:
+          type: integer
+        totalProducts:
+          type: integer
+        totalClients:
+          type: integer
+        todayRevenue:
+          type: number
+        todaySales:
+          type: integer
+        lowStockCount:
+          type: integer
+        recentSales:
+          type: array
+          items:
+            $ref: "#/components/schemas/BoutikoSale"
+        topProducts:
+          type: array
+          items:
+            type: object
+            required: [productId, productName, totalSold, revenue]
+            properties:
+              productId:
+                type: integer
+              productName:
+                type: string
+              totalSold:
+                type: integer
+              revenue:
+                type: number

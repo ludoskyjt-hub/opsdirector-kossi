@@ -1,0 +1,15 @@
+{
+  "rewrites": [
+    {"source": "/api/:path*", "destination": "https://function-bun-production-8308.up.railway.app/api/:path*"},
+    {"source": "/((?!api).*)", "destination": "/index.html"}
+  ],
+  "headers": [
+    {"source": "/sw.js", "headers": [
+      {"key": "Cache-Control", "value": "public, max-age=0, must-revalidate"},
+      {"key": "Service-Worker-Allowed", "value": "/"}
+    ]},
+    {"source": "/(.*)\\.js", "headers": [{"key": "Cache-Control", "value": "public, max-age=31536000, immutable"}]},
+    {"source": "/(.*)\\.css", "headers": [{"key": "Cache-Control", "value": "public, max-age=31536000, immutable"}]}
+  ],
+  "trailingSlash": false
+}
