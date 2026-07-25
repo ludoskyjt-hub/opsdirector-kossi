@@ -21,4 +21,5 @@ ENV NODE_ENV=production
 
 EXPOSE 8080
 
-CMD ["node", "--enable-source-maps", "artifacts/api-server/dist/index.mjs"]
+CMD ["node", "--enable-source-maps", "backend/dist/index.mjs"]
+
