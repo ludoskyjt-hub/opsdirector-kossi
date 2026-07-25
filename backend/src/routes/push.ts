@@ -7,11 +7,13 @@ import { z } from "zod";
 
 const router: IRouter = Router();
 
-webpush.setVapidDetails(
-  process.env.VAPID_SUBJECT ?? "mailto:support@beninexpense.bj",
-  process.env.VAPID_PUBLIC_KEY ?? "",
-  process.env.VAPID_PRIVATE_KEY ?? ""
-);
+if (process.env.VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
+  webpush.setVapidDetails(
+    process.env.VAPID_SUBJECT ?? "mailto:support@beninexpense.bj",
+    process.env.VAPID_PUBLIC_KEY,
+    process.env.VAPID_PRIVATE_KEY
+  );
+}
 
 export async function sendPushToUser(userId: number, payload: object): Promise<void> {
   const subs = await db.select().from(pushSubscriptionsTable)
