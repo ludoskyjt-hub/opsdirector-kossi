@@ -1,6 +1,6 @@
 {
   "rewrites": [
-    {"source": "/api/:path*", "destination": "https://function-bun-production-8308.up.railway.app/api/:path*"},
+    {"source": "/api/:path*", "destination": "https://opsdirector-kossi-backend.onrender.com/api/:path*"},
     {"source": "/((?!api).*)", "destination": "/index.html"}
   ],
   "headers": [
